@@ -1,0 +1,30 @@
+name: MSBuild
+
+on: workflow_dispatch
+
+env:
+  SOLUTION_FILE_PATH: TileIconifier.sln
+  BUILD_CONFIGURATION: Release
+  BUILD_PLATFORM: x64
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - uses: microsoft/setup-msbuild@v1.0.2
+
+    - working-directory: "${{github.workspace}}"
+      run: nuget restore "${{env.SOLUTION_FILE_PATH}}"
+
+    - working-directory: "${{github.workspace}}"
+      run: MSBuild -m -p:"Configuration=${{env.BUILD_CONFIGURATION}};Platform=${{env.BUILD_PLATFORM}}" "${{env.SOLUTION_FILE_PATH}}"
+
+    - uses: actions/upload-artifact@v3
+      with:
+        path: "${{github.workspace}}"
